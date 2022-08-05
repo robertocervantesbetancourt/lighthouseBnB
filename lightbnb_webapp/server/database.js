@@ -58,6 +58,10 @@ const addUser =  function(user) {
       console.log(response.rows[0])
       return response.rows[0];
     })
+    .catch((err) => {
+      console.log(err.message);
+      }
+    );
   // const userId = Object.keys(users).length + 1;
   // user.id = userId;
   // users[userId] = user;
@@ -73,7 +77,26 @@ exports.addUser = addUser;
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function(guest_id, limit = 10) {
-  return getAllProperties(null, 2);
+  return pool
+    .query(`SELECT properties.*, reservations.*, AVG(rating) as average_rating
+    FROM reservations
+    JOIN users ON users.id = reservations.guest_id
+    JOIN properties ON properties.id = reservations.property_id
+    JOIN property_reviews ON reservations.id = property_reviews.reservation_id
+    WHERE reservations.guest_id = $1
+    GROUP BY reservations.id, properties.id
+    ORDER BY reservations.start_date DESC
+    LIMIT $2;`, [guest_id, limit])
+    .then((result) => {
+      console.log(result.rows)
+      return result.rows;
+    })
+    .catch((err) => {
+      console.log(err.message);
+      }
+    );
+
+  // return getAllProperties(null, 2);
 }
 exports.getAllReservations = getAllReservations;
 
