@@ -62,10 +62,6 @@ const addUser =  function(user) {
       console.log(err.message);
       }
     );
-  // const userId = Object.keys(users).length + 1;
-  // user.id = userId;
-  // users[userId] = user;
-  // return Promise.resolve(user);
 }
 exports.addUser = addUser;
 
@@ -96,7 +92,6 @@ const getAllReservations = function(guest_id, limit = 10) {
       }
     );
 
-  // return getAllProperties(null, 2);
 }
 exports.getAllReservations = getAllReservations;
 
@@ -161,23 +156,11 @@ const getAllProperties = function(options, limit = 10) {
 
   return pool
     .query(queryString, queryParams)
-    .then((result) => {return result.rows});
-
-  // return pool 
-  //     .query(`SELECT properties.*, AVG(property_reviews.rating) as average_rating 
-  //             FROM properties 
-  //             JOIN property_reviews ON properties.id = property_reviews.property_id 
-  //             GROUP BY properties.id
-  //             LIMIT $1;`, [limit])
-  //     .then((result) => {
-  //       console.log(result.rows);
-  //       return result.rows;
-  //       }
-  //     )
-  //     .catch((err) => {
-  //       console.log(err.message);
-  //       }
-  //     );
+    .then((result) => {return result.rows})
+    .catch((err) => {
+      console.log(err.message);
+      }
+    );
 };
 exports.getAllProperties = getAllProperties;
 
@@ -188,9 +171,60 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
+
+const queryParams = [];
+let index = 1;
+
+let queryString =
+  `INSERT INTO properties 
+    (title,
+    description,
+    number_of_bedrooms,
+    number_of_bathrooms,
+    parking_spaces,
+    cost_per_night,
+    thumbnail_photo_url,
+    cover_photo_url,
+    street,
+    country,
+    city,
+    province,
+    post_code,
+    owner_id)
+    VALUES
+    (`;
+
+  const objLength = Object.keys(property).length
+
+  
+  for (let p in property){
+    queryParams.push(property[p])
+    queryString += `$${index}`
+    if(index < objLength){
+      queryString += `, `
+    }
+    index++;
+  }
+  
+  queryString += `) RETURNING *;`
+
+  // console.log(property, queryParams);
+  
+
+
+//console.log(queryString);
+
+return pool
+  .query(queryString, queryParams)
+  .then((result) => 
+        {console.log(result.rows);
+        result.rows;})
+  .catch((err) => {console.log(err.message);})
+
+
+  // const propertyId = Object.keys(properties).length + 1;
+  // property.id = propertyId;
+  // properties[propertyId] = property;
+  // return Promise.resolve(property);
 }
 exports.addProperty = addProperty;
