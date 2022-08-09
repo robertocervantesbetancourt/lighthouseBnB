@@ -208,23 +208,11 @@ let queryString =
   
   queryString += `) RETURNING *;`
 
-  // console.log(property, queryParams);
-  
-
-
-//console.log(queryString);
-
 return pool
   .query(queryString, queryParams)
   .then((result) => 
         {console.log(result.rows);
         result.rows;})
   .catch((err) => {console.log(err.message);})
-
-
-  // const propertyId = Object.keys(properties).length + 1;
-  // property.id = propertyId;
-  // properties[propertyId] = property;
-  // return Promise.resolve(property);
 }
 exports.addProperty = addProperty;
